@@ -24,6 +24,8 @@ dependencies = [
     "httpx>=0.27",
     "browser-cookie3>=0.19",
     "pyyaml>=6.0",
+    "mcp>=1.13,<2",
+    "uvicorn>=0.30",
 ]
 
 [project.urls]
@@ -33,6 +35,7 @@ Issues = "https://github.com/jackwener/rdt-cli/issues"
 
 [project.scripts]
 rdt = "rdt_cli.cli:cli"
+rdt-mcp = "rdt_cli.mcp_server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["rdt_cli"]

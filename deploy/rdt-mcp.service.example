@@ -1,0 +1,20 @@
+[Unit]
+Description=rdt-cli remote MCP server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rdt-mcp
+Group=rdt-mcp
+WorkingDirectory=/opt/rdt-cli/src
+EnvironmentFile=/etc/rdt-mcp.env
+Environment=HOME=/opt/rdt-cli
+ExecStart=/usr/bin/env uv run rdt-mcp
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

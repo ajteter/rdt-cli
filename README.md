@@ -201,6 +201,67 @@ git clone git@github.com:jackwener/rdt-cli.git .agents/skills/rdt-cli
 ### ~~OpenClaw / ClawHub~~ (Deprecated)
 
 > ⚠️ ClawHub 安装方式已过时，不再支持。请使用上方的 [Skills CLI](#skills-cli-recommended) 或手动安装。
+
+## Remote MCP Server
+
+rdt-cli can also run as a read-only remote MCP server for agents that support
+Streamable HTTP MCP.
+
+```bash
+export RDT_MCP_API_KEY="replace-with-a-random-long-secret"
+export RDT_MCP_HOST=127.0.0.1
+export RDT_MCP_PORT=8000
+export RDT_MCP_PATH=/mcp
+
+rdt-mcp
+```
+
+The MCP server uses the same saved Reddit browser-cookie credential as the CLI:
+
+```bash
+rdt login
+rdt status --json
+```
+
+Client endpoint:
+
+```text
+https://rdtmcp.example.com/mcp
+```
+
+Send one of these headers:
+
+```http
+Authorization: Bearer replace-with-a-random-long-secret
+```
+
+or:
+
+```http
+X-API-Key: replace-with-a-random-long-secret
+```
+
+The server also accepts `Api-Key` and `API_KEY` headers for MCP clients with
+limited header configuration.
+
+Read-only MCP tools:
+
+- `health`
+- `whoami`
+- `browse_subreddit`
+- `browse_home_feed`
+- `search_reddit`
+- `get_post_details`
+- `get_subreddit_info`
+- `user_analysis`
+- `get_saved`
+- `get_upvoted`
+- `reddit_explain`
+
+Deployment examples are in [`docs/mcp-systemd.md`](./docs/mcp-systemd.md),
+[`deploy/rdt-mcp.service.example`](./deploy/rdt-mcp.service.example), and
+[`deploy/Caddyfile.rdt-mcp.example`](./deploy/Caddyfile.rdt-mcp.example).
+
 ## Project Structure
 
 ```text
@@ -208,6 +269,7 @@ rdt_cli/
 ├── __init__.py           # Version
 ├── __main__.py           # python -m rdt_cli entry point
 ├── cli.py                # Click entry point & command registration
+├── mcp_server.py         # Streamable HTTP MCP server
 ├── client.py             # Reddit API client (rate-limit, retry, anti-detection)
 ├── auth.py               # Cookie authentication + TTL refresh
 ├── constants.py          # URLs, headers, sort options
