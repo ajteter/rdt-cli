@@ -77,6 +77,10 @@ class ApiKeyOriginMiddleware:
             await _send_json_error(send, 401, "unauthorized")
             return
 
+        if scope.get("path") == "/health":
+            await _send_json_response(send, 200, _health_payload())
+            return
+
         await self._app(scope, receive, send)
 
 
@@ -529,7 +533,13 @@ def _headers_to_dict(headers: Iterable[tuple[bytes, bytes]]) -> dict[str, str]:
 
 
 async def _send_json_error(send: AsgiSend, status: int, code: str) -> None:
-    body = f'{{"error":"{code}"}}'.encode()
+    await _send_json_response(send, status, {"error": code})
+
+
+async def _send_json_response(send: AsgiSend, status: int, payload: dict[str, Any]) -> None:
+    import json
+
+    body = json.dumps(payload, separators=(",", ":")).encode()
     await send(
         {
             "type": "http.response.start",
@@ -541,6 +551,17 @@ async def _send_json_error(send: AsgiSend, status: int, code: str) -> None:
         }
     )
     await send({"type": "http.response.body", "body": body})
+
+
+def _health_payload() -> dict[str, Any]:
+    from . import __version__
+
+    return {
+        "status": "ok",
+        "server": "rdt-cli",
+        "version": __version__,
+        "transport": "streamable-http",
+    }
 
 
 def _load_api_keys_from_env() -> tuple[str, ...]:

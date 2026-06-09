@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+
 import pytest
 
 from rdt_cli import mcp_server
@@ -110,6 +112,34 @@ class TestAsgiApp:
 
         assert isinstance(app, mcp_server.ApiKeyOriginMiddleware)
         assert calls == [settings]
+
+    def test_authenticated_health_path_returns_json(self) -> None:
+        async def inner_app(scope, receive, send):  # pragma: no cover - should not be reached
+            raise AssertionError("health should not call inner MCP app")
+
+        app = mcp_server.ApiKeyOriginMiddleware(inner_app, McpSettings(api_keys=("secret",)))
+        messages = []
+
+        async def receive():
+            return {"type": "http.request", "body": b"", "more_body": False}
+
+        async def send(message):
+            messages.append(message)
+
+        asyncio.run(
+            app(
+                {
+                    "type": "http",
+                    "path": "/health",
+                    "headers": [(b"x-api-key", b"secret")],
+                },
+                receive,
+                send,
+            )
+        )
+
+        assert messages[0]["status"] == 200
+        assert b'"server":"rdt-cli"' in messages[1]["body"]
 
 
 class TestToolInputNormalization:
