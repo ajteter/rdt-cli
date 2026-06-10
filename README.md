@@ -1,3 +1,20 @@
+# MCP 改造说明
+
+本 fork 已在原 CLI 能力之外增加远程只读 MCP server，便于部署在 VPS 上供 agent
+通过 Streamable HTTP 调用。
+
+- 启动命令：`rdt-mcp`
+- 默认 endpoint：`/mcp`
+- 默认监听：`127.0.0.1:8000`
+- MCP 访问鉴权：`RDT_MCP_API_KEY`
+- Reddit 访问凭据：复用 `rdt login` 保存的浏览器 cookie 凭据
+- 安全边界：只读 MCP 工具，不暴露投票、保存、订阅、评论等写操作
+- 部署方式：systemd + Caddy/Nginx/Cloudflare 反向代理
+
+相关文档：
+
+- [Remote MCP Deployment](./docs/mcp-systemd.md)
+
 # rdt-cli
 
 [![CI](https://github.com/jackwener/rdt-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/jackwener/rdt-cli/actions/workflows/ci.yml)
